@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-class TextRectException:
+class TextRectException(BaseException):
     def __init__(self, message = None):
         self.message = message
     def __str__(self):
