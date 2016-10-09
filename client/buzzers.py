@@ -38,8 +38,7 @@ class Buzzers:
             return self.queue.get()
 
     def __init__(self, device):
-        print('init buzzers')
-        self.f = open('/dev/hidraw0', mode='r+b', buffering=0)
+        self.f = open(device, mode='r+b', buffering=0)
         flag = fcntl.fcntl(self.f.fileno(), fcntl.F_GETFL)
         fcntl.fcntl(self.f.fileno(), fcntl.F_SETFL, flag | os.O_NONBLOCK)
         self.old_bits = 0
@@ -47,4 +46,3 @@ class Buzzers:
         self.thread = Thread(target=worker, args=(self,))
         self.thread.daemon = True
         self.thread.start()
-        print('init buzzers done')
