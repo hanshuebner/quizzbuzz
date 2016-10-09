@@ -1,2 +1,6 @@
 __pycache__
 *.pyc
+.lein-deps-sum
+.nrepl-port
+/target
+/lib

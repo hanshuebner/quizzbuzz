@@ -8,6 +8,7 @@ import math
 import threading
 from display import Display
 from buzzers import Buzzers
+from questions import Question
 os.putenv('SDL_VIDEODRIVER', 'fbcon')
 
 def main():
@@ -19,9 +20,13 @@ def main():
     clock = pygame.time.Clock()
     buzzers = Buzzers('/dev/hidraw0')
     display = Display()
+    question = None
 
-    display.set_question('Wie heißt das Reh mit Vornamen?',
-                         ('Andreas', 'Heckensche', 'Kartoffelpü', 'Lisa-Marie'))
+    def next_question():
+        question = Question('http://localhost:3399')
+        display.set_question(question.question, question.answers)
+
+    next_question()
 
     while True:
         pressed = buzzers.get_pressed()
@@ -30,8 +35,7 @@ def main():
                 pygame.mixer.music.load(buzz_sound_file)
                 pygame.mixer.music.play()
             print(pressed)
-            display.set_question('Mit welchem Körperteil atmen Fische?',
-                                 ('Lungen', 'Kiemen', 'Flossen', 'Schuppen'))
+            next_question()
 
         subseconds = math.modf(time.time())[0]
         led_state = (subseconds > 0.9) or (subseconds > 0.7 and subseconds < 0.8)
