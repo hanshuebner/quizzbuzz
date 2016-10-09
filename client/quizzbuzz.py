@@ -35,6 +35,7 @@ def main():
         pressed = buzzers.get_pressed()
         if pressed:
             buzzer_sounds[pressed['buzzer']].play()
+            display.set_score(pressed['buzzer'], 1)
             print(pressed)
             next_question()
 

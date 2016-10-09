@@ -34,7 +34,17 @@ class Display:
         width = self.info.current_w
         height = self.info.current_h
         self.draw_label(question, (0, 0, width, height * 0.6), Color.white, Color.black, self.big_font)
-        self.draw_label(answers[0], (0, height * 0.6, width, height * 0.1), Color.black, Color.blue, self.font)
-        self.draw_label(answers[1], (0, height * 0.7, width, height * 0.1), Color.black, Color.orange, self.font)
-        self.draw_label(answers[2], (0, height * 0.8, width, height * 0.1), Color.black, Color.green, self.font)
-        self.draw_label(answers[3], (0, height * 0.9, width, height * 0.1), Color.black, Color.yellow, self.font)
+        self.draw_label(answers[0], (width / 3, height * 0.6, width / 3, height * 0.09), Color.black, Color.blue, self.font)
+        self.draw_label(answers[1], (width / 3, height * 0.7, width / 3, height * 0.09), Color.black, Color.orange, self.font)
+        self.draw_label(answers[2], (width / 3, height * 0.8, width / 3, height * 0.09), Color.black, Color.green, self.font)
+        self.draw_label(answers[3], (width / 3, height * 0.9, width / 3, height * 0.09), Color.black, Color.yellow, self.font)
+
+    def set_score(self, player_number, score):
+        width = self.info.current_w
+        height = self.info.current_h
+        self.draw_label(str(score),
+                        (0 if (player_number % 2) == 0 else (width / 3) * 2,
+                         height * 0.6 if player_number > 1 else height * 0.8,
+                         width / 3,
+                         height * 0.2),
+                        Color.white, Color.black, self.big_font)
