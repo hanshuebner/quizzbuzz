@@ -5,6 +5,19 @@
             [ring.util.response :refer [response]]
             [ring.adapter.jetty :refer [run-jetty]]))
 
+(defn ensure-string [thing]
+  (if (float? thing)
+    (format "%.0f" thing)
+    thing))
+
+(defn ensure-answer-strings [{:keys [answer-correct answer-incorrect-1 answer-incorrect-2 answer-incorrect-3]
+                              :as question}]
+  (into question
+        {:answer-correct (ensure-string answer-correct)
+         :answer-incorrect-1 (ensure-string answer-incorrect-1)
+         :answer-incorrect-2 (ensure-string answer-incorrect-2)
+         :answer-incorrect-3 (ensure-string answer-incorrect-3)}))
+
 (defn get-question [resource-name]
   (->> (spreadsheet/load-workbook-from-resource resource-name)
        (spreadsheet/select-sheet "Tabelle1")
@@ -16,6 +29,7 @@
                                     :F :level
                                     :G :category})
        rest
+       (map ensure-answer-strings)
        rand-nth))
 
 (defn get-question-handler [request]
