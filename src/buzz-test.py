@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 
+import sys
 import pygame
 import os
 import time
@@ -21,11 +22,6 @@ def main():
     info = pygame.display.Info()
     display = pygame.display.set_mode((info.current_w, info.current_h))
 
-    pygame.mixer.music.load(buzz_sound_file)
-    
-    pygame.mixer.music.play()
-    pygame.mixer.music.pause()
-
     clock = pygame.time.Clock()
     buzzers = Buzzers('/dev/hidraw0')
 
@@ -40,6 +36,9 @@ def main():
 
         pressed = buzzers.get_pressed()
         if pressed:
+            if not(pygame.mixer.music.get_busy()):
+                pygame.mixer.music.load(buzz_sound_file)
+                pygame.mixer.music.play()
             print(pressed)
 
         subseconds = math.modf(time.time())[0]
@@ -51,11 +50,6 @@ def main():
         else:
             display.fill(pygame.Color('black'), (0, 800, 400, 200))
 
-        # pygame.mixer.music.play()
-
-        # while pygame.mixer.music.get_busy():
-        #  pygame.time.Clock().tick(10)
-
         clock.tick(10)
         pygame.display.flip()
 
@@ -63,6 +57,7 @@ if __name__ == '__main__':
     try:
         main()
     except KeyboardInterrupt:
-        pass
-    finally:
+        print('exiting')
         exit(0)
+    except:
+        print('unexpected error: ', sys.exc_info())
