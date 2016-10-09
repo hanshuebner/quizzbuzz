@@ -12,10 +12,13 @@ from questions import Question
 os.putenv('SDL_VIDEODRIVER', 'fbcon')
 
 def main():
-    buzz_sound_file = '../resources/sounds/buzzer.wav'
-
     pygame.mixer.init(44100, -16, 2, 512)
     pygame.init()
+
+    buzzer_sounds = [pygame.mixer.Sound('../resources/sounds/buzzer-0.wav'),
+                     pygame.mixer.Sound('../resources/sounds/buzzer-1.wav'),
+                     pygame.mixer.Sound('../resources/sounds/buzzer-2.wav'),
+                     pygame.mixer.Sound('../resources/sounds/buzzer-3.wav')]
 
     clock = pygame.time.Clock()
     buzzers = Buzzers('/dev/hidraw0')
@@ -31,9 +34,7 @@ def main():
     while True:
         pressed = buzzers.get_pressed()
         if pressed:
-            if not(pygame.mixer.music.get_busy()):
-                pygame.mixer.music.load(buzz_sound_file)
-                pygame.mixer.music.play()
+            buzzer_sounds[pressed['buzzer']].play()
             print(pressed)
             next_question()
 

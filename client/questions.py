@@ -11,7 +11,10 @@ class Question:
         self.server_url = server_url
         data = self.get_question()
         self.question = data['question']
-        self.answers = [data['answer-correct'], data['answer-incorrect-1'],  data['answer-incorrect-2'],  data['answer-incorrect-3']]
+        self.answers = [data['answer-correct'],
+                        data['answer-incorrect-1'],
+                        data['answer-incorrect-2'],
+                        data['answer-incorrect-3']]
         shuffle(self.answers)
         self.correct_answer = data['answer-correct']
         self.level = data['level']
