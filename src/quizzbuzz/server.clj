@@ -7,7 +7,6 @@
             [ring.util.response :as response]
             [ring.adapter.jetty :refer [run-jetty]]
             [compojure.core :refer :all]
-            [compojure.coercions :refer :all]
             [compojure.route :as route]))
 
 (defn ensure-string [thing]
@@ -64,37 +63,33 @@
       keys
       set))
 
-(defn get-question-handler [{:keys [questions-resource-name]} level category]
-  (cond
-    (and level
-         (not (<= 1 level 3)))
-    (-> (response/response "invalid level")
-        (response/status 400))
+(defn get-question-handler [{:keys [params config]}]
+  (let [{:keys [questions-resource-name]} config
+        {:keys [level category]} params
+        level (and level (Integer/parseInt level))]
+    (cond
+      (and level
+           (not (<= 1 level 3)))
+      (-> (response/response "invalid level")
+          (response/status 400))
 
-    (and category
-         (not (get (known-categories questions-resource-name) category)))
-    (-> (response/response "invalid category")
-        (response/status 400))
+      (and category
+           (not (get (known-categories questions-resource-name) category)))
+      (-> (response/response "invalid category")
+          (response/status 400))
 
-    :otherwise
-    (if-let [question (get-question questions-resource-name
-                                    {:level level
-                                     :category category})]
-      (response/response question)
-      (response/not-found "no matching question found"))))
+      :otherwise
+      (if-let [question (get-question questions-resource-name
+                                      {:level level
+                                       :category category})]
+        (response/response question)
+        (response/not-found "no matching question found")))))
 
 (defroutes app
-  (POST "/question" [level :<< as-int
-                     category
-                     :as request]
-        (get-question-handler (:config request) level category))
+  (POST "/question" [] get-question-handler)
   (route/not-found "page not found"))
 
 (defonce server (atom nil))
-
-(defn wrap-config [handler]
-  (fn [request]
-    (handler (assoc request :config {:questions-resource-name "FragenAuswahl.xlsx"}))))
 
 (defn run-server
   ([]
