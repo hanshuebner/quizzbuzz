@@ -27,14 +27,15 @@ def main(buzzer_device):
     scores = [0, 0, 0, 0]
 
     def next_question():
-        question = Question('http://localhost:3399')
+        question = Question()
         display.set_question(question.question, question.answers)
         return question
 
     while True:
         question = next_question()
 
-        buzzers.leds(True, True, True, True)
+        answered = [False, False, False, False]
+        buzzers.leds(*answered)
         correct_answer = False
         while not(correct_answer):
             pressed = buzzers.get_pressed()
@@ -44,12 +45,18 @@ def main(buzzer_device):
                 if button == 0:
                     buzzer_sounds[player_index].play()
                 else:
-                    if question.answers[4 - button] == question.correct_answer:
-                        buzzer_sounds[player_index].play()
-                        scores[player_index] = scores[player_index] + 1
-                        display.set_score(player_index, scores[player_index])
-                        display.set_question(question.question, question.answers, correct=question.correct_answer)
-                        correct_answer = True
+                    if not(answered[player_index]):
+                        answered[player_index] = True
+                        if question.answers[4 - button] == question.correct_answer:
+                            buzzer_sounds[player_index].play()
+                            scores[player_index] = scores[player_index] + 1
+                            display.set_score(player_index, scores[player_index])
+                            display.set_question(question.question, question.answers, correct=question.correct_answer)
+                            display.set_player_answered(player_index, True)
+                            correct_answer = True
+                        else:
+                            display.set_player_answered(player_index, False)
+                        buzzers.leds(*answered)
 
             clock.tick(10)
             pygame.display.flip()

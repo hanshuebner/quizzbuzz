@@ -48,6 +48,21 @@ class Display:
         self.draw_answer(answers[1], correct, (width / 3, height * 0.7, width / 3, 70), Color.orange)
         self.draw_answer(answers[2], correct, (width / 3, height * 0.8, width / 3, 70), Color.green)
         self.draw_answer(answers[3], correct, (width / 3, height * 0.9, width / 3, 70), Color.yellow)
+        for player in range(4):
+            self.set_player_answered_color(player, Color.black)
+
+    def set_player_answered_color(self, player_number, color):
+        width = self.info.current_w
+        height = self.info.current_h
+        x = int(80 if (player_number % 2) == 0 else width - 80)
+        y = int(height * 0.67 if player_number > 1 else height * 0.87)
+        pygame.draw.circle(self.display,
+                           color.value,
+                           (x, y),
+                           48)
+
+    def set_player_answered(self, player_number, correct):
+        self.set_player_answered_color(player_number, (Color.green if correct else Color.red))
 
     def set_score(self, player_number, score):
         width = self.info.current_w
