@@ -100,7 +100,7 @@
           (response/not-found "no matching questions found"))))))
 
 (defn get-categories-handler [{:keys [database params]}]
-  (let [{:keys [max-level category question-count]} (parse-params params)]
+  (let [{:keys [max-level question-count]} (parse-params params)]
     (response/response (categories-with-questions database question-count max-level))))
 
 (defn load-database [database-file]
