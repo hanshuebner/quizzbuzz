@@ -22,13 +22,28 @@ class Question:
         self.category = data['category']
 
 class QuestionsServer:
-    def get_questions(self, category='Biologie', max_level=10):
-        response = requests.post(self.server_url,
-                                 headers={'X-Client-ID': raspi.get_serial()})
+    def headers(self):
+        return {'X-Client-ID': raspi.get_serial()}
+
+    def questions(self, category='Biologie', max_level=10, question_count=10):
+        response = requests.post(self.server_url + 'questions',
+                                 headers=self.headers(),
+                                 params={'category': category,
+                                         'max-level': max_level,
+                                         'question-count': question_count})
         if response.status_code != 200:
             raise QuestionsException('Cannot retrieve questions, status %d: %s' % (response.status_code, response.text))
         questions = response.json()
         return list(map(lambda data: Question(data), questions))
 
-    def __init__(self, server_url='http://paracetamol:3399/questions?category=Biologie'):
+    def categories(self, max_level=10, question_count=10):
+        response = requests.get(self.server_url + 'categories',
+                                headers=self.headers(),
+                                params={'max-level': max_level,
+                                        'question-count': question_count})
+        if response.status_code != 200:
+            raise QuestionsException('Cannot retrieve categories, status %d: %s' % (response.status_code, response.text))
+        return response.json()
+
+    def __init__(self, server_url='http://paracetamol:3399/'):
         self.server_url = server_url

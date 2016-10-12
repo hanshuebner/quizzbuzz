@@ -40,7 +40,7 @@ class Display:
                         color if inverse else Color.black,
                         self.font)
 
-    def set_question(self, question, answers, correct=None):
+    def display_choices(self, question, answers, correct=None):
         width = self.info.current_w
         height = self.info.current_h
         self.draw_label(question, (0, 0, width, height * 0.6), Color.white, Color.black, self.big_font)
