@@ -8,7 +8,7 @@ import math
 import threading
 from display import Display
 from buzzers import Buzzers
-from questions import Question
+from questions import QuestionsServer
 os.putenv('SDL_VIDEODRIVER', 'fbcon')
 
 def main(buzzer_device):
@@ -26,8 +26,12 @@ def main(buzzer_device):
     question = None
     scores = [0, 0, 0, 0]
 
+    server = QuestionsServer()
+
+    questions = server.get_questions()
+
     def next_question():
-        question = Question()
+        question = questions.pop()
         display.set_question(question.question, question.answers)
         return question
 
