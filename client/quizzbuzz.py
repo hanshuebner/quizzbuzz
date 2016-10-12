@@ -47,6 +47,7 @@ def main(buzzer_device):
                 else:
                     if not(answered[player_index]):
                         answered[player_index] = True
+                        buzzers.leds(*answered)
                         if question.answers[4 - button] == question.correct_answer:
                             buzzer_sounds[player_index].play()
                             scores[player_index] = scores[player_index] + 1
@@ -56,7 +57,6 @@ def main(buzzer_device):
                             correct_answer = True
                         else:
                             display.set_player_answered(player_index, False)
-                        buzzers.leds(*answered)
 
             clock.tick(10)
             pygame.display.flip()

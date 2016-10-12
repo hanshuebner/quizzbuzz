@@ -1,15 +1,14 @@
 from random import shuffle
-from urllib.request import urlopen
-from urllib.parse import urlencode
+import requests
 import json
+import raspi
 
 class Question:
     def get_question(self):
-        nothing = urlencode('').encode('utf-8')
-        s = urlopen(self.server_url, data=nothing).read().decode('utf-8')
-        return json.loads(s)
+        response = requests.post(self.server_url, headers={'X-Client-ID': raspi.get_serial()})
+        return response.json()
 
-    def __init__(self, server_url='http://paracetamol:3399/question'):
+    def __init__(self, server_url='http://paracetamol:3399/questions?category=Biologie'):
         self.server_url = server_url
         data = self.get_question()
         self.question = data['question']
