@@ -40,10 +40,8 @@
 
 (defn catego-and-randomize [questions]
   (->> questions
-       (group-by :category)
-       (map (fn [[category questions]]
-              [category (shuffle questions)]))
-       (into {})))
+       shuffle
+       (group-by :category)))
 
 (defn questions-upto-level [questions max-level]
   (filter #(<= (:level %) max-level) questions))
