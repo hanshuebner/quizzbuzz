@@ -8,7 +8,7 @@ import math
 import threading
 from display import Display
 from buzzers import Buzzers
-from questions import Question
+from questions import QuestionsServer
 os.putenv('SDL_VIDEODRIVER', 'fbcon')
 
 def main(buzzer_device):
@@ -26,44 +26,49 @@ def main(buzzer_device):
     question = None
     scores = [0, 0, 0, 0]
 
-    def next_question():
-        question = Question()
-        display.set_question(question.question, question.answers)
-        return question
+    def play_round(questions):
+        while len(questions) > 0:
+            question = questions.pop()
+            display.display_choices(question.question, question.answers)
 
-    while True:
-        question = next_question()
+            answered = [False, False, False, False]
+            buzzers.leds(*answered)
+            correct_answer = False
+            while not(correct_answer):
+                pressed = buzzers.get_pressed()
+                if pressed:
+                    player_index = pressed['buzzer']
+                    button = pressed['button']
+                    if button == 0:
+                        buzzer_sounds[player_index].play()
+                    else:
+                        if not(answered[player_index]):
+                            answered[player_index] = True
+                            buzzers.leds(*answered)
+                            if question.answers[4 - button] == question.correct_answer:
+                                buzzer_sounds[player_index].play()
+                                scores[player_index] = scores[player_index] + 1
+                                display.set_score(player_index, scores[player_index])
+                                display.display_choices(question.question, question.answers, correct=question.correct_answer)
+                                display.set_player_answered(player_index, True)
+                                correct_answer = True
+                            else:
+                                display.set_player_answered(player_index, False)
 
-        answered = [False, False, False, False]
-        buzzers.leds(*answered)
-        correct_answer = False
-        while not(correct_answer):
-            pressed = buzzers.get_pressed()
-            if pressed:
-                player_index = pressed['buzzer']
-                button = pressed['button']
-                if button == 0:
-                    buzzer_sounds[player_index].play()
-                else:
-                    if not(answered[player_index]):
-                        answered[player_index] = True
-                        if question.answers[4 - button] == question.correct_answer:
-                            buzzer_sounds[player_index].play()
-                            scores[player_index] = scores[player_index] + 1
-                            display.set_score(player_index, scores[player_index])
-                            display.set_question(question.question, question.answers, correct=question.correct_answer)
-                            display.set_player_answered(player_index, True)
-                            correct_answer = True
-                        else:
-                            display.set_player_answered(player_index, False)
-                        buzzers.leds(*answered)
+                clock.tick(10)
+                pygame.display.flip()
 
-            clock.tick(10)
-            pygame.display.flip()
+            pygame.time.delay(1000)
+            while buzzers.get_pressed() != None:
+                None
 
-        pygame.time.delay(1000)
-        while buzzers.get_pressed() != None:
-            None
+    server = QuestionsServer()
+
+    category = server.categories()[0]
+
+    questions = server.questions(category=category)
+    play_round(questions)
+
 
 if __name__ == '__main__':
     try:
