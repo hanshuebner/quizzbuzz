@@ -10,7 +10,7 @@ import display
 from display import Display
 import views
 import models
-from buzzers import Buzzers
+from buzzers import BuzzerController
 from questions import QuestionsServer
 
 os.putenv('SDL_VIDEODRIVER', 'fbcon')
@@ -23,16 +23,10 @@ def play_round(display, buzzers, players, questions):
         question = questions.pop()
         view.display_choices(question.question, question.answers)
 
-        answered = {}
-
-        def set_buzzer_leds():
-            #buzzers.leds(*answered)
-            None
-
-        set_buzzer_leds()
+        answered = set()
 
         correct_answer = False
-        while not(correct_answer):
+        while not(correct_answer) and len(answered) < len(players):
             pressed = buzzers.get_pressed()
             if pressed:
                 player = pressed['player']
@@ -41,9 +35,9 @@ def play_round(display, buzzers, players, questions):
                     if button == 0:
                         player.sound.play()
                     else:
-                        if not(answered.get(player, False)):
-                            answered[player] = True
-                            set_buzzer_leds()
+                        if not(player in answered):
+                            answered.add(player)
+                            player.buzzer.set_led(True)
                             if question.answers[4 - button] == question.correct_answer:
                                 player.sound.play()
                                 player.add_score(1)
@@ -58,23 +52,23 @@ def play_round(display, buzzers, players, questions):
             pygame.display.flip()
 
         pygame.time.delay(1000)
-        while buzzers.get_pressed() != None:
-            None
+        buzzers.flush()
+        for player in players:
+            player.buzzer.set_led(False)
 
 def main(buzzer_device):
     pygame.mixer.init(44100, -16, 2, 512)
     pygame.init()
 
-    buzzers = Buzzers(buzzer_device)
+    buzzers = BuzzerController(buzzer_device)
     display = Display()
     server = QuestionsServer()
 
     category = server.categories()[0]
     questions = server.questions(category=category)
     players = [models.Player('Alva', 0), models.Player('Marna', 1), models.Player('Hans', 2)]
-    buzzers.set_player(0, players[0])
-    buzzers.set_player(1, players[1])
-    buzzers.set_player(2, players[2])
+    for i in range(3):
+        buzzers.buzzers[i].set_player(players[i])
     play_round(display, buzzers, players, questions)
 
 if __name__ == '__main__':

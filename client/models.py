@@ -6,6 +6,7 @@ class Player:
         self.score = 0
         self.index = index
         self.sound = pygame.mixer.Sound('../resources/sounds/buzzer-' + str(index) + '.wav')
+        self.buzzer = None
 
     def add_score(self, points):
         self.score = self.score + 1

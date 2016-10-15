@@ -7,7 +7,17 @@ def worker(buzzers):
     while True:
         buzzers.read()
 
-class Buzzers:
+class BuzzerController:
+    def __init__(self, device):
+        self.f = open(device, mode='r+b', buffering=0)
+        flag = fcntl.fcntl(self.f.fileno(), fcntl.F_GETFL)
+        fcntl.fcntl(self.f.fileno(), fcntl.F_SETFL, flag | os.O_NONBLOCK)
+        self.old_bits = 0
+        self.queue = Queue()
+        self.thread = Thread(target=worker, args=(self,))
+        self.thread.daemon = True
+        self.thread.start()
+        self.buzzers = [Buzzer(self, i) for i in range(4)]
 
     def decode(self, bits):
         mask = 1
@@ -24,33 +34,36 @@ class Buzzers:
             bits = input[4] << 16 | input[3] << 8 | input[2]
             self.decode(bits)
 
-    def leds(self, one, two, three, four):
+    def set_leds(self):
         self.f.write(bytearray([0, 0,
-                                255 if one else 0,
-                                255 if two else 0,
-                                255 if three else 0,
-                                255 if four else 0]))
+                                255 if self.buzzers[0].led_state else 0,
+                                255 if self.buzzers[1].led_state else 0,
+                                255 if self.buzzers[2].led_state else 0,
+                                255 if self.buzzers[3].led_state else 0]))
 
     def get_pressed(self):
         if self.queue.empty():
             return None
         else:
             message = self.queue.get()
-            player = self.players[message['buzzer']]
-            if player:
-                message['player'] = player
+            message['player'] = self.buzzers[message['buzzer']].player
             return message
 
-    def set_player(self, buzzer_index, player):
-        self.players[buzzer_index] = player
+    def flush(self):
+        while self.get_pressed() != None:
+            None
 
-    def __init__(self, device):
-        self.f = open(device, mode='r+b', buffering=0)
-        flag = fcntl.fcntl(self.f.fileno(), fcntl.F_GETFL)
-        fcntl.fcntl(self.f.fileno(), fcntl.F_SETFL, flag | os.O_NONBLOCK)
-        self.old_bits = 0
-        self.queue = Queue()
-        self.thread = Thread(target=worker, args=(self,))
-        self.thread.daemon = True
-        self.thread.start()
-        self.players = [None, None, None, None]
+class Buzzer:
+    def __init__(self, controller, index):
+        self.controller = controller
+        self.index = index
+        self.led_state = False
+        self.player = None
+
+    def set_player(self, player):
+        self.player = player
+        player.buzzer = self
+
+    def set_led(self, led_state):
+        self.led_state = led_state
+        self.controller.set_leds()
