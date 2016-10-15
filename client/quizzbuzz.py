@@ -53,7 +53,7 @@ def choose_players(display, buzzers):
         buzzer.set_led(False)
         return player
 
-    return map(make_player, claimed_buzzers)
+    return list(map(make_player, claimed_buzzers))
 
 def choose_category(display, buzzers, categories, player):
     clock = pygame.time.Clock()
@@ -88,7 +88,7 @@ def play_round(display, buzzers, players, questions):
                 player = message.buzzer.player
                 button = message.button
                 if player:
-                    if button == buzzers.Red:
+                    if button == Red:
                         player.sound.play()
                     else:
                         if not(player in answered):
@@ -120,7 +120,7 @@ def play_round(display, buzzers, players, questions):
 
         while True:
             message = buzzers.get_pressed()
-            if message and message.button == buzzers.Red:
+            if message and message.button == Red:
                 break
             clock.tick(10)
 
