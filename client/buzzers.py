@@ -35,7 +35,14 @@ class Buzzers:
         if self.queue.empty():
             return None
         else:
-            return self.queue.get()
+            message = self.queue.get()
+            player = self.players[message['buzzer']]
+            if player:
+                message['player'] = player
+            return message
+
+    def set_player(self, buzzer_index, player):
+        self.players[buzzer_index] = player
 
     def __init__(self, device):
         self.f = open(device, mode='r+b', buffering=0)
@@ -46,3 +53,4 @@ class Buzzers:
         self.thread = Thread(target=worker, args=(self,))
         self.thread.daemon = True
         self.thread.start()
+        self.players = [None, None, None, None]

@@ -58,8 +58,8 @@ class QuestionView(View):
         self.players = players
         for i in range(len(players)):
             (x, y, width, height) = self.player_rect(i)
-            self.display.draw_label(players[i]['name'], (x, y + 120, width, height - 120))
-            self.set_score(i, players[i]['score'])
+            self.display.draw_label(players[i].name, (x, y + 120, width, height - 120))
+            self.set_score(i, players[i].score)
 
     def player_rect(self, index):
         width = self.display.width
