@@ -3,12 +3,12 @@
 import pygame
 from display import Display, Color
 
-class Screen:
+class View:
     def __init__(self, display):
         self.display = display
         display.clear()
 
-class ChoosePlayerScreen(Screen):
+class ChoosePlayerView(View):
     def __init__(self, display, player_names):
         super().__init__(display)
         self.player_names = player_names
@@ -28,7 +28,7 @@ class ChoosePlayerScreen(Screen):
         make_label(1, '\ue02d', Color.orange, 'icons')
         make_label(3, 'Fertig', Color.red)
 
-class ChooseCategoryScreen(Screen):
+class ChooseCategoryView(View):
     def __init__(self, display, player_name, categories):
         super().__init__(display)
         self.display.draw_label(player_name + ', wähle die Kategorie!',
@@ -52,7 +52,7 @@ class ChooseCategoryScreen(Screen):
         self.draw_category(self.categories[2], chosen, (width / 4, height * 0.5, width / 2, 70), Color.green)
         self.draw_category(self.categories[3], chosen, (width / 4, height * 0.6, width / 2, 70), Color.yellow)
 
-class QuestionScreen(Screen):
+class QuestionView(View):
     def __init__(self, display, players):
         super().__init__(display)
         self.players = players
@@ -103,26 +103,26 @@ class QuestionScreen(Screen):
         self.set_player_answered_color(player_number, (Color.green if correct else Color.red))
 
 def test_choose_player(display):
-    screen = ChoosePlayerScreen(display, ['Alva', 'Marna', 'Hans', 'Gertraude', 'Michaela'])
+    view = ChoosePlayerView(display, ['Alva', 'Marna', 'Hans', 'Gertraude', 'Michaela'])
     unavailable = set(['Alva', 'Marna', 'Hans'])
-    screen.display_name_column(0, 'Alva', unavailable)
-    screen.display_name_column(1, 'Marna', unavailable)
-    screen.display_name_column(3, 'Hans', unavailable)
+    view.display_name_column(0, 'Alva', unavailable)
+    view.display_name_column(1, 'Marna', unavailable)
+    view.display_name_column(3, 'Hans', unavailable)
 
 def test_choose_category(display):
-    screen = ChooseCategoryScreen(display,
+    view = ChooseCategoryView(display,
                                   'Alva',
                                   ['Filme', 'Wirtschaft', 'Musik', 'Religion & Gesellschaft'])
 
 def test_question(display):
-    screen = QuestionScreen(display, [{'name': 'Alva', 'score': 23},
+    view = QuestionView(display, [{'name': 'Alva', 'score': 23},
                                       {'name': 'Marna', 'score': 20},
                                       {'name': 'Hans', 'score': 12}])
-    screen.display_choices('Wie heisst der Bürgermeister von Wesel?',
+    view.display_choices('Wie heisst der Bürgermeister von Wesel?',
                            ['Esel', 'Esel', 'Esel', 'Esel'])
-    screen.set_player_answered(0, True)
-    screen.set_player_answered(1, True)
-    screen.set_player_answered(2, False)
+    view.set_player_answered(0, True)
+    view.set_player_answered(1, True)
+    view.set_player_answered(2, False)
 
 if __name__ == '__main__':
     try:

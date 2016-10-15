@@ -8,7 +8,7 @@ import math
 import threading
 import display
 from display import Display
-import screens
+import views
 from buzzers import Buzzers
 from questions import QuestionsServer
 os.putenv('SDL_VIDEODRIVER', 'fbcon')
@@ -29,10 +29,10 @@ def main(buzzer_device):
     scores = [0, 0, 0, 0]
 
     def play_round(questions):
-        screen = screens.QuestionScreen(display)
+        view = views.QuestionView(display)
         while len(questions) > 0:
             question = questions.pop()
-            screen.display_choices(question.question, question.answers)
+            view.display_choices(question.question, question.answers)
 
             answered = [False, False, False, False]
             buzzers.leds(*answered)
@@ -51,12 +51,12 @@ def main(buzzer_device):
                             if question.answers[4 - button] == question.correct_answer:
                                 buzzer_sounds[player_index].play()
                                 scores[player_index] = scores[player_index] + 1
-                                screen.set_score(player_index, scores[player_index])
-                                screen.display_choices(question.question, question.answers, correct=question.correct_answer)
-                                screen.set_player_answered(player_index, True)
+                                view.set_score(player_index, scores[player_index])
+                                view.display_choices(question.question, question.answers, correct=question.correct_answer)
+                                view.set_player_answered(player_index, True)
                                 correct_answer = True
                             else:
-                                screen.set_player_answered(player_index, False)
+                                view.set_player_answered(player_index, False)
 
                 clock.tick(10)
                 pygame.display.flip()
