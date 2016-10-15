@@ -47,13 +47,14 @@ def choose_players(display, buzzers):
         pygame.display.flip()
         clock.tick(10)
 
-    def make_player(buzzer):
-        player = models.Player(all_player_names[claimed_buzzers[buzzer]], buzzer.index)
+    def make_player(entry):
+        index, buzzer = entry
+        player = models.Player(all_player_names[claimed_buzzers[buzzer]], index)
         buzzer.set_player(player)
         buzzer.set_led(False)
         return player
 
-    return list(map(make_player, claimed_buzzers))
+    return list(map(make_player, enumerate(claimed_buzzers)))
 
 def choose_category(display, buzzers, categories, player):
     clock = pygame.time.Clock()

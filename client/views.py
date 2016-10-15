@@ -83,14 +83,14 @@ class QuestionView(View):
     def display_choices(self, question, answers, correct=None):
         width = self.display.width
         height = self.display.height
-        self.display.draw_label(question, (0, 0, width, height * 0.4
-        ), font='big')
+        self.display.draw_label(question, (0, 0, width, height * 0.4), font='big')
         self.draw_answer(answers[0], correct, (width / 3, height * 0.4, width / 3, 70), Color.blue)
         self.draw_answer(answers[1], correct, (width / 3, height * 0.5, width / 3, 70), Color.orange)
         self.draw_answer(answers[2], correct, (width / 3, height * 0.6, width / 3, 70), Color.green)
         self.draw_answer(answers[3], correct, (width / 3, height * 0.7, width / 3, 70), Color.yellow)
-        for player in range(len(self.players)):
-            self.set_player_answered_color(player, Color.black)
+        if correct == None:
+            for player in range(len(self.players)):
+                self.set_player_answered_color(player, Color.black)
 
     def set_player_answered_color(self, player_number, color):
         width = self.display.width
