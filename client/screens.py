@@ -83,7 +83,8 @@ class QuestionScreen(Screen):
     def display_choices(self, question, answers, correct=None):
         width = self.display.width
         height = self.display.height
-        self.display.draw_label(question, (0, 0, width, height * 0.4), font='big')
+        self.display.draw_label(question, (0, 0, width, height * 0.4
+        ), font='big')
         self.draw_answer(answers[0], correct, (width / 3, height * 0.4, width / 3, 70), Color.blue)
         self.draw_answer(answers[1], correct, (width / 3, height * 0.5, width / 3, 70), Color.orange)
         self.draw_answer(answers[2], correct, (width / 3, height * 0.6, width / 3, 70), Color.green)
@@ -95,7 +96,7 @@ class QuestionScreen(Screen):
         width = self.display.width
         height = self.display.height
         x = int(80 if (player_number % 2) == 0 else width - 80)
-        y = int(height * 0.67 if player_number < 2 else height * 0.87)
+        y = int(height * 0.47 if player_number < 2 else height * 0.67)
         self.display.draw_circle(color, (x, y), 48)
 
     def set_player_answered(self, player_number, correct):
@@ -119,6 +120,9 @@ def test_question(display):
                                       {'name': 'Hans', 'score': 12}])
     screen.display_choices('Wie heisst der Bürgermeister von Wesel?',
                            ['Esel', 'Esel', 'Esel', 'Esel'])
+    screen.set_player_answered(0, True)
+    screen.set_player_answered(1, True)
+    screen.set_player_answered(2, False)
 
 if __name__ == '__main__':
     try:
