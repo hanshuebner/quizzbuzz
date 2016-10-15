@@ -4,7 +4,7 @@ import sys
 import pygame
 import os
 import time
-import math
+import random
 import threading
 import display
 from display import Display
@@ -14,6 +14,23 @@ from buzzers import BuzzerController
 from questions import QuestionsServer
 
 os.putenv('SDL_VIDEODRIVER', 'fbcon')
+
+def choose_category(display, buzzers, categories, player):
+    clock = pygame.time.Clock()
+    player.buzzer.set_led(True)
+    view = views.ChooseCategoryView(display, player.name, categories)
+    pygame.display.flip()
+    category = None
+    while not(category):
+        message = buzzers.get_pressed()
+        if message and message.buzzer.player == player and message.button != 0:
+            category = categories[4 - message.button]
+        clock.tick(10)
+    view.display_categories(category)
+    pygame.display.flip()
+    pygame.time.delay(3000)
+    player.buzzer.set_led(False)
+    return category
 
 def play_round(display, buzzers, players, questions):
     clock = pygame.time.Clock()
@@ -69,6 +86,12 @@ def play_round(display, buzzers, players, questions):
 
         set_all_leds(False)
 
+def who_chooses(players):
+    ranked = sorted(players, key=lambda player: player.score)
+    low = ranked[0].score
+    losers = list(filter(lambda player: player.score == low, ranked))
+    return random.choice(losers)
+
 def main(buzzer_device):
     pygame.mixer.init(44100, -16, 2, 512)
     pygame.init()
@@ -77,12 +100,18 @@ def main(buzzer_device):
     display = Display()
     server = QuestionsServer()
 
-    category = server.categories()[0]
-    questions = server.questions(category=category)
+    # select players
     players = [models.Player('Alva', 0), models.Player('Marna', 1), models.Player('Hans', 2)]
     for i in range(3):
         buzzers.buzzers[i].set_player(players[i])
-    play_round(display, buzzers, players, questions)
+
+    # select category
+    category = choose_category(display, buzzers, random.sample(server.categories(), 4), who_chooses(players))
+    print(category)
+    #questions = server.questions(category=category)
+
+    # play
+    #play_round(display, buzzers, players, questions)
 
 if __name__ == '__main__':
     try:
