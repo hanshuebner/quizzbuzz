@@ -5,6 +5,7 @@ import pygame
 import os
 import time
 import random
+import json
 import threading
 import display
 from display import Display
@@ -14,6 +15,31 @@ from buzzers import BuzzerController
 from questions import QuestionsServer
 
 os.putenv('SDL_VIDEODRIVER', 'fbcon')
+
+def load_player_names():
+    with open('../database/players.json', 'r') as file:
+        return json.load(file)
+
+def choose_players(display, buzzers):
+    clock = pygame.time.Clock()
+    all_players = load_player_names()
+    view = views.ChoosePlayerView(display, load_player_names())
+    pygame.display.flip()
+    unassigned_buzzers = set(buzzers.buzzers)
+    in_progress_buzzers = set()
+    ready_buzzers = set()
+    chosen_names = set()
+    while True:
+        message = buzzers.get_pressed()
+        if message:
+            buzzer = message.buzzer
+            if buzzer in unassigned_buzzers:
+                unassigned_buzzers.remove(buzzer)
+                in_progress_buzzers.add(buzzer)
+                buzzer.set_led(True)
+                view.display_name_column(buzzer.index, None, chosen_names)
+        pygame.display.flip()
+        clock.tick(10)
 
 def choose_category(display, buzzers, categories, player):
     clock = pygame.time.Clock()
@@ -100,14 +126,15 @@ def main(buzzer_device):
     display = Display()
     server = QuestionsServer()
 
+    players = choose_players(display, buzzers)
+
     # select players
-    players = [models.Player('Alva', 0), models.Player('Marna', 1), models.Player('Hans', 2)]
-    for i in range(3):
-        buzzers.buzzers[i].set_player(players[i])
+    #players = [models.Player('Alva', 0), models.Player('Marna', 1), models.Player('Hans', 2)]
+    #for i in range(3):
+    #    buzzers.buzzers[i].set_player(players[i])
 
     # select category
-    category = choose_category(display, buzzers, random.sample(server.categories(), 4), who_chooses(players))
-    print(category)
+    #category = choose_category(display, buzzers, random.sample(server.categories(), 4), who_chooses(players))
     #questions = server.questions(category=category)
 
     # play

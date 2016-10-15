@@ -24,6 +24,7 @@ class BuzzerController:
         self.thread.daemon = True
         self.thread.start()
         self.buzzers = [Buzzer(self, i) for i in range(4)]
+        self.set_leds()
 
     def decode(self, bits):
         mask = 1
