@@ -26,7 +26,6 @@ class ChoosePlayerScreen(Screen):
             self.display.draw_label(string, (cell_width * index, self.display.height - 70, cell_width, 70), Color.black, color, font)
         make_label(0, '\ue030', Color.blue, 'icons')
         make_label(1, '\ue02d', Color.orange, 'icons')
-        make_label(2, 'Neu', Color.yellow)
         make_label(3, 'Fertig', Color.red)
 
 class QuestionScreen(Screen):
