@@ -28,6 +28,30 @@ class ChoosePlayerScreen(Screen):
         make_label(1, '\ue02d', Color.orange, 'icons')
         make_label(3, 'Fertig', Color.red)
 
+class ChooseCategoryScreen(Screen):
+    def __init__(self, display, player_name, categories):
+        super().__init__(display)
+        self.display.draw_label(player_name + ', wähle die Kategorie!',
+                                (0, 0, self.display.width, self.display.height),
+                                font='big')
+        self.categories = categories
+        self.display_categories()
+
+    def draw_category(self, text, chosen, rect, color):
+        inverse = chosen == None or text == chosen
+        self.display.draw_label(text,
+                                rect,
+                                Color.black if inverse else color,
+                                color if inverse else Color.black)
+
+    def display_categories(self, chosen=None):
+        width = self.display.width
+        height = self.display.height
+        self.draw_category(self.categories[0], chosen, (width / 4, height * 0.3, width / 2, 70), Color.blue)
+        self.draw_category(self.categories[1], chosen, (width / 4, height * 0.4, width / 2, 70), Color.orange)
+        self.draw_category(self.categories[2], chosen, (width / 4, height * 0.5, width / 2, 70), Color.green)
+        self.draw_category(self.categories[3], chosen, (width / 4, height * 0.6, width / 2, 70), Color.yellow)
+
 class QuestionScreen(Screen):
     def __init__(self, display, players):
         super().__init__(display)
@@ -41,7 +65,7 @@ class QuestionScreen(Screen):
         width = self.display.width
         height = self.display.height
         return (0 if (index % 2) == 0 else (width / 3) * 2,
-                height * 0.6 if index < 2 else height * 0.8,
+                (height * 0.4) if index < 2 else (height * 0.6),
                 width / 3,
                 height * 0.2)
 
@@ -59,11 +83,11 @@ class QuestionScreen(Screen):
     def display_choices(self, question, answers, correct=None):
         width = self.display.width
         height = self.display.height
-        self.display.draw_label(question, (0, 0, width, height * 0.6), font='big')
-        self.draw_answer(answers[0], correct, (width / 3, height * 0.6, width / 3, 70), Color.blue)
-        self.draw_answer(answers[1], correct, (width / 3, height * 0.7, width / 3, 70), Color.orange)
-        self.draw_answer(answers[2], correct, (width / 3, height * 0.8, width / 3, 70), Color.green)
-        self.draw_answer(answers[3], correct, (width / 3, height * 0.9, width / 3, 70), Color.yellow)
+        self.display.draw_label(question, (0, 0, width, height * 0.4), font='big')
+        self.draw_answer(answers[0], correct, (width / 3, height * 0.4, width / 3, 70), Color.blue)
+        self.draw_answer(answers[1], correct, (width / 3, height * 0.5, width / 3, 70), Color.orange)
+        self.draw_answer(answers[2], correct, (width / 3, height * 0.6, width / 3, 70), Color.green)
+        self.draw_answer(answers[3], correct, (width / 3, height * 0.7, width / 3, 70), Color.yellow)
         for player in range(len(self.players)):
             self.set_player_answered_color(player, Color.black)
 
@@ -77,13 +101,6 @@ class QuestionScreen(Screen):
     def set_player_answered(self, player_number, correct):
         self.set_player_answered_color(player_number, (Color.green if correct else Color.red))
 
-def test_question(display):
-    screen = QuestionScreen(display, [{'name': 'Alva', 'score': 23},
-                                      {'name': 'Marna', 'score': 20},
-                                      {'name': 'Hans', 'score': 12}])
-    screen.display_choices('Wie heisst der Bürgermeister von Wesel?',
-                           ['Esel', 'Esel', 'Esel', 'Esel'])
-
 def test_choose_player(display):
     screen = ChoosePlayerScreen(display, ['Alva', 'Marna', 'Hans', 'Gertraude', 'Michaela'])
     unavailable = set(['Alva', 'Marna', 'Hans'])
@@ -91,11 +108,26 @@ def test_choose_player(display):
     screen.display_name_column(1, 'Marna', unavailable)
     screen.display_name_column(3, 'Hans', unavailable)
 
+def test_choose_category(display):
+    screen = ChooseCategoryScreen(display,
+                                  'Alva',
+                                  ['Filme', 'Wirtschaft', 'Musik', 'Religion & Gesellschaft'])
+
+def test_question(display):
+    screen = QuestionScreen(display, [{'name': 'Alva', 'score': 23},
+                                      {'name': 'Marna', 'score': 20},
+                                      {'name': 'Hans', 'score': 12}])
+    screen.display_choices('Wie heisst der Bürgermeister von Wesel?',
+                           ['Esel', 'Esel', 'Esel', 'Esel'])
+
 if __name__ == '__main__':
     try:
         pygame.init()
         display = Display()
         test_choose_player(display)
+        pygame.display.flip()
+        input()
+        test_choose_category(display)
         pygame.display.flip()
         input()
         test_question(display)
