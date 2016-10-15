@@ -3,6 +3,12 @@ import os
 from queue import Queue
 from threading import Thread
 
+class BuzzerEvent:
+    def __init__(self, buzzer_index, button):
+        self.buzzer_index = buzzer_index
+        self.button = button
+        self.buzzer = None
+
 def worker(buzzers):
     while True:
         buzzers.read()
@@ -23,8 +29,7 @@ class BuzzerController:
         mask = 1
         for i in range(0, 20):
             if bits & mask and not(self.old_bits & mask):
-                self.queue.put({'buzzer': int(i / 5),
-                                'button': i % 5})
+                self.queue.put(BuzzerEvent(int(i / 5), i % 5))
             mask = mask << 1
         self.old_bits = bits
 
@@ -46,7 +51,7 @@ class BuzzerController:
             return None
         else:
             message = self.queue.get()
-            message['player'] = self.buzzers[message['buzzer']].player
+            message.buzzer = self.buzzers[message.buzzer_index]
             return message
 
     def flush(self):

@@ -16,7 +16,6 @@ from questions import QuestionsServer
 os.putenv('SDL_VIDEODRIVER', 'fbcon')
 
 def play_round(display, buzzers, players, questions):
-    question = None
     clock = pygame.time.Clock()
     view = views.QuestionView(display, players)
     while len(questions) > 0:
@@ -27,10 +26,10 @@ def play_round(display, buzzers, players, questions):
 
         correct_answer = False
         while not(correct_answer) and len(answered) < len(players):
-            pressed = buzzers.get_pressed()
-            if pressed:
-                player = pressed['player']
-                button = pressed['button']
+            message = buzzers.get_pressed()
+            if message:
+                player = message.buzzer.player
+                button = message.button
                 if player:
                     if button == 0:
                         player.sound.play()
@@ -42,7 +41,6 @@ def play_round(display, buzzers, players, questions):
                                 player.sound.play()
                                 player.add_score(1)
                                 view.set_score(player.index, player.score)
-                                view.display_choices(question.question, question.answers, correct=question.correct_answer)
                                 view.set_player_answered(player.index, True)
                                 correct_answer = True
                             else:
@@ -51,10 +49,25 @@ def play_round(display, buzzers, players, questions):
             clock.tick(10)
             pygame.display.flip()
 
+        view.display_choices(question.question, question.answers, correct=question.correct_answer)
+        pygame.display.flip()
+
         pygame.time.delay(1000)
         buzzers.flush()
-        for player in players:
-            player.buzzer.set_led(False)
+
+        def set_all_leds(state):
+            for player in players:
+                player.buzzer.set_led(state)
+
+        set_all_leds(True)
+
+        while True:
+            message = buzzers.get_pressed()
+            if message and message.button == 0:
+                break
+            clock.tick(10)
+
+        set_all_leds(False)
 
 def main(buzzer_device):
     pygame.mixer.init(44100, -16, 2, 512)
