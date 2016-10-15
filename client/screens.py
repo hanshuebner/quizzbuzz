@@ -18,9 +18,9 @@ class Screen:
         self.display = display
 
 class QuestionScreen(Screen):
-    def __init__(self, display):
+    def __init__(self, display, players):
         super().__init__(display)
-        for i in range(4):
+        for i in range(len(players)):
             self.set_score(i, 0)
 
     def draw_answer(self, text, correct, rect, color):
@@ -66,7 +66,7 @@ if __name__ == '__main__':
     try:
         pygame.init()
         display = Display()
-        screen = QuestionScreen(display)
+        screen = QuestionScreen(display, ['Alva', 'Marna', 'Hans')
         screen.display_choices('Wie heisst der Bürgermeister von Wesel?',
                                ['Esel', 'Esel', 'Esel', 'Esel'])
         pygame.display.flip()
