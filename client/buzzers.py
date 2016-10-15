@@ -3,6 +3,12 @@ import os
 from queue import Queue
 from threading import Thread
 
+Red = 0
+Yellow = 1
+Green = 2
+Orange = 3
+Blue = 4
+
 class BuzzerEvent:
     def __init__(self, buzzer_index, button):
         self.buzzer_index = buzzer_index

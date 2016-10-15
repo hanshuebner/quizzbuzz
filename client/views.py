@@ -14,7 +14,7 @@ class ChoosePlayerView(View):
         self.player_names = player_names
         self.display.draw_label('Wer spielt mit?', (0, 0, self.display.width, self.display.height), font='big')
 
-    def display_name_column(self, buzzer_index, chosen, unavailable):
+    def display_name_column(self, buzzer_index, chosen, unavailable=set()):
         cell_width = self.display.width / 4
         for name_index, name in enumerate(self.player_names):
             foreground = Color.black if name == chosen else Color.grey if name in unavailable else Color.white
