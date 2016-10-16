@@ -140,3 +140,7 @@
                                  wrap-database)
                              {:port port
                               :join? false}))))
+
+(defn -main []
+  (run-server)
+  (.join @server))
