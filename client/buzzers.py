@@ -65,6 +65,11 @@ class BuzzerController:
         while self.get_pressed() != None:
             None
 
+    def set_all_leds(self, state):
+        for buzzer in self.buzzers:
+            buzzer.set_led(state)
+
+
 class Buzzer:
     def __init__(self, controller, index):
         self.controller = controller
