@@ -112,6 +112,23 @@ class QuestionView(View):
     def set_player_answered(self, player_number, correct):
         self.set_player_answered_color(player_number, (Color.green if correct else Color.red))
 
+class VictoryCeremonyView(View):
+    def __init__(self, display, scoreboard):
+        super().__init__(display)
+        width = self.display.width
+        height = self.display.height
+        self.display.draw_label('Siegerehrung',
+                                (0, 0, width, 300),
+                                font='huge')
+        self.display.draw_label('Rang', (200, 300, 300, 200), font='big', foreground=Color.grey)
+        self.display.draw_label('Name', (500, 300, 800, 200), font='big', foreground=Color.grey)
+        self.display.draw_label('Punkte', (1300, 300, 300, 200), font='big', foreground=Color.grey)
+        for rank, player in enumerate(scoreboard):
+            name, score = player
+            self.display.draw_label(str(rank + 1), (200, 450 + rank*120, 300, 200), font='big')
+            self.display.draw_label(name, (500, 450 + rank*120, 800, 200), font='big')
+            self.display.draw_label(str(score), (1300, 450 + rank*120, 300, 200), font='big')
+
 def test_choose_player(display):
     view = ChoosePlayerView(display, ['Alva', 'Marna', 'Hans', 'Gertraude', 'Michaela'])
     unavailable = set(['Alva', 'Marna', 'Hans'])
@@ -134,6 +151,9 @@ def test_question(display):
     view.set_player_answered(1, True)
     view.set_player_answered(2, False)
 
+def test_siegerehrung(display):
+    view = VictoryCeremonyView(display, (('Marna', 3848), ('Alva', 3302), ('Hans', 2003)))
+
 if __name__ == '__main__':
     import models
     try:
@@ -146,6 +166,9 @@ if __name__ == '__main__':
         pygame.display.flip()
         input()
         test_question(display)
+        pygame.display.flip()
+        input()
+        test_siegerehrung(display)
         pygame.display.flip()
         input()
     except KeyboardInterrupt:
