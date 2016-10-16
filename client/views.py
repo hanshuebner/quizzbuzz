@@ -54,15 +54,16 @@ class ChooseCategoryView(View):
         self.display.draw_label(text,
                                 rect,
                                 Color.black if inverse else color,
-                                color if inverse else Color.black)
+                                color if inverse else Color.black,
+                                font='big')
 
     def display_categories(self, chosen=None):
         width = self.display.width
         height = self.display.height
-        self.draw_category(self.categories[0], chosen, (width / 4, height * 0.3, width / 2, 70), Color.blue)
-        self.draw_category(self.categories[1], chosen, (width / 4, height * 0.4, width / 2, 70), Color.orange)
-        self.draw_category(self.categories[2], chosen, (width / 4, height * 0.5, width / 2, 70), Color.green)
-        self.draw_category(self.categories[3], chosen, (width / 4, height * 0.6, width / 2, 70), Color.yellow)
+        self.draw_category(self.categories[0], chosen, (width * 0.18, height * 0.4 + 0, width * 0.64, 130), Color.blue)
+        self.draw_category(self.categories[1], chosen, (width * 0.18, height * 0.4 + 140, width * 0.64, 130), Color.orange)
+        self.draw_category(self.categories[2], chosen, (width * 0.18, height * 0.4 + 2*140, width * 0.64, 130), Color.green)
+        self.draw_category(self.categories[3], chosen, (width * 0.18, height * 0.4 + 3*140, width * 0.64, 130), Color.yellow)
         pygame.display.flip()
 
 class QuestionView(View):
@@ -72,30 +73,25 @@ class QuestionView(View):
         width = self.display.width
         height = self.display.height
         self.display.draw_label(question, (0, 0, width, height * 0.4), font='big')
-        for i in range(len(players)):
-            (x, y, width, height) = self.player_rect(i)
-            self.display.draw_label(players[i].name, (x, y + 120, width, height - 120))
-            self.set_score(i, players[i].score)
+        for player in players:
+            self.draw_player(player)
         pygame.display.flip()
 
     def player_rect(self, index):
         width = self.display.width
         height = self.display.height
-        return (0 if (index % 2) == 0 else (width / 3) * 2,
-                (height * 0.4) if index < 2 else (height * 0.6),
-                width / 3,
+        return (0 if (index % 2) == 0 else width - (width * 0.17),
+                (height * 0.41) if index < 2 else (height * 0.65),
+                width * 0.17,
                 height * 0.2)
-
-    def set_score(self, player_number, score):
-        (x, y, width, height) = self.player_rect(player_number)
-        self.display.draw_label(str(score), (x, y, width, height - 100), font='big')
 
     def draw_answer(self, text, correct, rect, color):
         inverse = correct == None or text == correct
         self.display.draw_label(text,
                                 rect,
                                 Color.black if inverse else color,
-                                color if inverse else Color.black)
+                                color if inverse else Color.black,
+                                font='big')
 
     def display_question(self, question):
         pygame.display.flip()
@@ -103,24 +99,21 @@ class QuestionView(View):
     def display_choices(self, answers, correct=None):
         width = self.display.width
         height = self.display.height
-        self.draw_answer(answers[0], correct, (width / 3, height * 0.4, width / 3, 70), Color.blue)
-        self.draw_answer(answers[1], correct, (width / 3, height * 0.5, width / 3, 70), Color.orange)
-        self.draw_answer(answers[2], correct, (width / 3, height * 0.6, width / 3, 70), Color.green)
-        self.draw_answer(answers[3], correct, (width / 3, height * 0.7, width / 3, 70), Color.yellow)
-        if correct == None:
-            for player in range(len(self.players)):
-                self.set_player_answered_color(player, Color.black)
+        self.draw_answer(answers[0], correct, (width * 0.18, height * 0.4 + 0, width * 0.64, 130), Color.blue)
+        self.draw_answer(answers[1], correct, (width * 0.18, height * 0.4 + 140, width * 0.64, 130), Color.orange)
+        self.draw_answer(answers[2], correct, (width * 0.18, height * 0.4 + 2*140, width * 0.64, 130), Color.green)
+        self.draw_answer(answers[3], correct, (width * 0.18, height * 0.4 + 3*140, width * 0.64, 130), Color.yellow)
         pygame.display.flip()
 
-    def set_player_answered_color(self, player_number, color):
-        width = self.display.width
-        height = self.display.height
-        x = int(80 if (player_number % 2) == 0 else width - 80)
-        y = int(height * 0.47 if player_number < 2 else height * 0.67)
-        self.display.draw_circle(color, (x, y), 48)
-
-    def set_player_answered(self, player_number, correct):
-        self.set_player_answered_color(player_number, (Color.green if correct else Color.red))
+    def draw_player(self, player, answer_is_correct=None):
+        (x, y, width, height) = self.player_rect(player.index)
+        foreground, background = Color.white, Color.black
+        if answer_is_correct == True:
+            foreground, background = Color.black, Color.green
+        elif answer_is_correct == False:
+            foreground, background = Color.black, Color.red
+        self.display.draw_label(player.name, (x, y + 120, width, 66), foreground=foreground, background=background)
+        self.display.draw_label(str(player.score), (x, y, width, height - 100), font='big')
         pygame.display.flip()
 
 class VictoryCeremonyView(View):
@@ -131,9 +124,9 @@ class VictoryCeremonyView(View):
         self.display.draw_label('Siegerehrung',
                                 (0, 0, width, 300),
                                 font='huge')
-        self.display.draw_label('Rang', (200, 300, 300, 200), font='big', foreground=Color.grey)
-        self.display.draw_label('Name', (500, 300, 800, 200), font='big', foreground=Color.grey)
-        self.display.draw_label('Punkte', (1300, 300, 300, 200), font='big', foreground=Color.grey)
+        self.display.draw_label('Rang', (200, 330, 300, 200), font='big', foreground=Color.grey)
+        self.display.draw_label('Name', (500, 330, 800, 200), font='big', foreground=Color.grey)
+        self.display.draw_label('Punkte', (1300, 330, 300, 200), font='big', foreground=Color.grey)
         for rank, player in enumerate(scoreboard):
             name, score = player
             self.display.draw_label(str(rank + 1), (200, 450 + rank*120, 300, 200), font='big')
@@ -154,17 +147,28 @@ def test_choose_category(display):
                                   ['Filme', 'Wirtschaft', 'Musik', 'Religion & Gesellschaft'])
 
 def test_question(display):
-    view = QuestionView(display, [models.Player('Alva', 0),
-                                  models.Player('Marna', 1),
-                                  models.Player('Hans', 2)])
-    view.display_question('Wie heisst der Bürgermeister von Wesel?')
-    pygame.time.delay(3000)
-    view.display_choices(['Frosch', 'Ente', 'Esel', 'Kuh'])
-    view.set_player_answered(0, True)
-    view.set_player_answered(1, True)
-    view.set_player_answered(2, False)
-    pygame.time.delay(1000)
-    view.display_choices(['Frosch', 'Ente', 'Esel', 'Kuh'], 'Esel')
+    players = [models.Player('Alva', 0),
+               models.Player('Marna', 1),
+               models.Player('Hans', 2)]
+    for player in players:
+        player.score = 9999
+    view = QuestionView(display,
+                        players,
+                        'Wie heisst der Bürgermeister von Wesel?')
+    input()
+    view.display_choices(["Das Quiz mit Jörg Pilawa",
+                          "Yellowstone-Nationalpark",
+                          "Gustave Alexandre Eiffel",
+                          "1.000.000 Million Dollar"])
+    view.draw_player(players[0], True)
+    view.draw_player(players[1], True)
+    view.draw_player(players[2], False)
+    input()
+    view.display_choices(["Das Quiz mit Jörg Pilawa",
+                          "Yellowstone-Nationalpark",
+                          "Gustave Alexandre Eiffel",
+                          "1.000.000 Million Dollar"],
+                         "1.000.000 Million Dollar")
 
 def test_siegerehrung(display):
     view = VictoryCeremonyView(display, (('Marna', 3848), ('Alva', 3302), ('Hans', 2003)))

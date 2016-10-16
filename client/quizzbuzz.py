@@ -133,7 +133,7 @@ def play_round(display, buzzers, players, questions, round_mode):
                             player.sound.play()
                             player.add_score(round_mode.score(answer_is_correct, remaining_time))
                             view.set_score(player.index, player.score)
-                            view.set_player_answered(player.index, answer_is_correct)
+                            view.set_player(player, answer_is_correct)
 
             clock.tick(10)
             remaining_time -= now() - base_time
