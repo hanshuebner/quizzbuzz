@@ -163,7 +163,7 @@ def main(buzzer_device):
     display = Display()
     server = QuestionsServer()
 
-    questions_per_round = 3
+    questions_per_round = 7
 
     while True:
         players = choose_players(display, buzzers)
