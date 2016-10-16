@@ -9,4 +9,4 @@ class Player:
         self.buzzer = None
 
     def add_score(self, points):
-        self.score = self.score + 1
+        self.score += points
