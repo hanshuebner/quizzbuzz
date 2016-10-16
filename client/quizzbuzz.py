@@ -37,9 +37,9 @@ def choose_players(display, buzzers):
                 buzzer.set_led(True)
             elif buzzer in claimed_buzzers:
                 if message.button == Blue and claimed_buzzers[buzzer] > 0:
-                    claimed_buzzers[buzzer] = claimed_buzzers[buzzer] - 1
+                    claimed_buzzers[buzzer] -= 1
                 elif message.button == Orange and claimed_buzzers[buzzer] < len(all_player_names) - 1:
-                    claimed_buzzers[buzzer] = claimed_buzzers[buzzer] + 1
+                    claimed_buzzers[buzzer] += 1
                 elif message.button == Red and len(set(claimed_buzzers.values())) == len(claimed_buzzers):
                     break
         for buzzer in claimed_buzzers:
