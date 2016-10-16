@@ -8,6 +8,7 @@ import random
 import json
 import threading
 import display
+import game_modes
 from enum import Enum
 from display import Display
 import views
@@ -57,6 +58,18 @@ def choose_players(display, buzzers):
 
     return list(map(make_player, enumerate(claimed_buzzers)))
 
+def describe_game_mode(display, buzzers, mode):
+    title, text = mode.description()
+    view = views.DescribeGameModeView(display, title, text)
+    clock = pygame.time.Clock()
+    pygame.display.flip()
+    while True:
+        message = buzzers.get_pressed()
+        if message and message.button == 0:
+            break
+        pygame.display.flip()
+        clock.tick(10)
+
 def choose_category(display, buzzers, categories, player):
     clock = pygame.time.Clock()
     player.buzzer.set_led(True)
@@ -74,12 +87,6 @@ def choose_category(display, buzzers, categories, player):
     player.buzzer.set_led(False)
     return category
 
-class RoundMode(Enum):
-    relaxed = 0
-    timed = 1
-    one_only = 2
-    final = 3
-
 def play_round(display, buzzers, players, questions, round_mode):
     clock = pygame.time.Clock()
     view = views.QuestionView(display, players)
@@ -89,54 +96,10 @@ def play_round(display, buzzers, players, questions, round_mode):
 
         answered = set()
 
-        answer_correct = False
+        answer_is_correct = False
         remaining_time = 10000
 
-        # When does is the question complete?
-        def all_answered():
-            return len(answered) == len(players)
-
-        def time_remaining():
-            return remaining_time == 0 or len(answered) == len(players)
-
-        def one_correct_answer():
-            return answer_correct or len(answered) == len(players)
-
-        # How is the score calculated
-        def simple_score(answer_is_correct):
-            if answer_is_correct:
-                return 250
-            else:
-                return 0
-
-        def time_score(answer_is_correct):
-            if answer_is_correct:
-                return int(remaining_time / 40)
-            else:
-                return 0
-
-        def win_and_loose(answer_is_correct):
-            if answer_is_correct:
-                return 250
-            else:
-                return -250
-
-        if round_mode == RoundMode.relaxed:
-            question_complete = all_answered
-            scoring = simple_score
-        elif round_mode == RoundMode.timed:
-            question_complete = time_remaining
-            scoring = time_score
-        elif round_mode == RoundMode.one_only:
-            question_complete = one_correct_answer
-            scoring = simple_score
-        elif round_mode == RoundMode.final:
-            question_complete = one_correct_answer
-            scoring = win_and_loose
-        else:
-            raise Exception('Unknown round mode')
-
-        while not(question_complete()):
+        while not(round_mode.question_complete(players, answered, answer_is_correct, remaining_time)):
             base_time = pygame.time.get_ticks()
             message = buzzers.get_pressed()
             if message:
@@ -149,11 +112,11 @@ def play_round(display, buzzers, players, questions, round_mode):
                         if not(player in answered):
                             answered.add(player)
                             player.buzzer.set_led(True)
-                            answer_correct = question.answers[4 - button] == question.correct_answer
+                            answer_is_correct = question.answers[4 - button] == question.correct_answer
                             player.sound.play()
-                            player.add_score(scoring(answer_correct))
+                            player.add_score(round_mode.score(answer_is_correct, remaining_time))
                             view.set_score(player.index, player.score)
-                            view.set_player_answered(player.index, answer_correct)
+                            view.set_player_answered(player.index, answer_is_correct)
 
             pygame.display.flip()
             clock.tick(10)
@@ -196,10 +159,14 @@ def main(buzzer_device):
     # select players
     players = choose_players(display, buzzers)
 
-    for mode in [RoundMode.relaxed, RoundMode.timed, RoundMode.one_only, RoundMode.final]:
+    questions_per_round = 7
+
+    for mode in [game_modes.Relaxed(), game_modes.Timed(), game_modes.OneOnly(), game_modes.Final()]:
+        describe_game_mode(display, buzzers, mode)
+
         # select category
         category = choose_category(display, buzzers, random.sample(server.categories(), 4), who_chooses(players))
-        questions = server.questions(category=category, question_count=3)
+        questions = server.questions(category=category, question_count=questions_per_round)
 
         # play
         play_round(display, buzzers, players, questions, mode)

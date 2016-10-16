@@ -28,6 +28,16 @@ class ChoosePlayerView(View):
         make_label(1, '\ue02d', Color.orange, 'icons')
         make_label(3, 'Fertig', Color.red)
 
+class DescribeGameModeView(View):
+    def __init__(self, display, title, description):
+        super().__init__(display)
+        self.display.draw_label(title,
+                                (0, 0, self.display.width, self.display.height / 3),
+                                font='huge')
+        self.display.draw_label(description,
+                                (0, self.display.height / 3, self.display.width, 2 * (self.display.height / 3)),
+                                font='big')
+
 class ChooseCategoryView(View):
     def __init__(self, display, player_name, categories):
         super().__init__(display)

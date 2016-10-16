@@ -28,8 +28,9 @@ class Display:
         self.display = pygame.display.set_mode((self.info.current_w, self.info.current_h))
         self.width = self.info.current_w
         self.height = self.info.current_h
-        self.fonts = {'big': load_font(text_font, 96),
-                      'normal': load_font(text_font, 48),
+        self.fonts = {'normal': load_font(text_font, 48),
+                      'big': load_font(text_font, 96),
+                      'huge': load_font(text_font, 192),
                       'icons': load_font(icon_font, 48)}
 
     def clear(self):
