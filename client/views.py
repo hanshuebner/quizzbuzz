@@ -115,9 +115,9 @@ def test_choose_category(display):
                                   ['Filme', 'Wirtschaft', 'Musik', 'Religion & Gesellschaft'])
 
 def test_question(display):
-    view = QuestionView(display, [{'name': 'Alva', 'score': 23},
-                                      {'name': 'Marna', 'score': 20},
-                                      {'name': 'Hans', 'score': 12}])
+    view = QuestionView(display, [models.Player('Alva', 0),
+                                  models.Player('Marna', 1),
+                                  models.Player('Hans', 2)])
     view.display_choices('Wie heisst der Bürgermeister von Wesel?',
                            ['Esel', 'Esel', 'Esel', 'Esel'])
     view.set_player_answered(0, True)
@@ -125,6 +125,7 @@ def test_question(display):
     view.set_player_answered(2, False)
 
 if __name__ == '__main__':
+    import models
     try:
         pygame.init()
         display = Display()
