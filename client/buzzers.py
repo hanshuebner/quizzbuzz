@@ -37,7 +37,7 @@ class BuzzerController:
         for i in range(0, 20):
             if bits & mask and not(self.old_bits & mask):
                 self.queue.put(BuzzerEvent(int(i / 5), i % 5))
-            mask = mask << 1
+            mask <<= 1
         self.old_bits = bits
 
     def read(self):
