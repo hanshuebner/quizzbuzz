@@ -46,7 +46,7 @@ class Final:
                 'Jede richtige Antwort gibt Punkte, jede falsche Antwort Punktabzug!')
 
     def question_complete(self, players, answered, answer_correct, remaining_time):
-        return answer_correct or len(answered) == len(players)
+        return len(answered) == len(players)
 
     def score(self, answer_is_correct, remaining_time):
         if answer_is_correct:
