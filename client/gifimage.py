@@ -174,14 +174,10 @@ class GIFImage(object):
 
 def main():
     pygame.init()
-    screen = pygame.display.set_mode((640, 480))
+    info = pygame.display.Info()
+    screen = pygame.display.set_mode((info.current_w, info.current_h))
 
-    hulk = GIFImage("hulk.gif")
-    football = GIFImage("football.gif")
-    hulk2 = hulk.copy()
-    hulk2.reverse()
-    hulk3 = hulk.copy()
-    spiderman = GIFImage("spiderman7.gif")
+    image = GIFImage("../resources/fireworks.gif")
 
     while 1:
         for event in pygame.event.get():
@@ -189,12 +185,8 @@ def main():
                 pygame.quit()
                 return
 
-        screen.fill((255,255,255))
-        hulk.render(screen, (50, 0))
-        hulk2.render(screen, (50, 150))
-        hulk3.render(screen, (50, 300))
-        football.render(screen, (200, 50))
-        spiderman.render(screen, (200, 150))
+        screen.fill((0,0,0))
+        image.render(screen, (50, 0))
         pygame.display.flip()
 
 if __name__ == "__main__":
