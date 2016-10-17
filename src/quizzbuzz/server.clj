@@ -29,13 +29,13 @@
   (->> (spreadsheet/load-workbook-from-resource resource-name)
        spreadsheet/sheet-seq
        first
-       (spreadsheet/select-columns {:A :question
-                                    :B :answer-correct
-                                    :C :answer-incorrect-1
-                                    :D :answer-incorrect-2
-                                    :E :answer-incorrect-3
-                                    :F :level
-                                    :G :category})
+       (spreadsheet/select-columns {:B :question
+                                    :C :answer-correct
+                                    :D :answer-incorrect-1
+                                    :E :answer-incorrect-2
+                                    :F :answer-incorrect-3
+                                    :G :level
+                                    :H :category})
        rest
        (map normalize-question)))
 
