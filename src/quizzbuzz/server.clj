@@ -27,7 +27,8 @@
 
 (defn load-questions-from-excel [resource-name]
   (->> (spreadsheet/load-workbook-from-resource resource-name)
-       (spreadsheet/select-sheet "Tabelle1")
+       spreadsheet/sheet-seq
+       first
        (spreadsheet/select-columns {:A :question
                                     :B :answer-correct
                                     :C :answer-incorrect-1
