@@ -1,4 +1,5 @@
 (ns quizzbuzz.server
+  (:gen-class)
   (:require [clojure.java.io :as io]
             [dk.ative.docjure.spreadsheet :as spreadsheet]
             [ring.middleware.json :refer [wrap-json-response]]
