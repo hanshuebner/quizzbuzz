@@ -105,7 +105,7 @@
 (defn load-database [database-file]
   (if (fs/exists? database-file)
     (read-string (slurp database-file))
-    (-> (load-questions-from-excel "FragenAuswahl.xlsx")
+    (-> (load-questions-from-excel "2500-Fragen.xlsx")
         catego-and-randomize)))
 
 (defn wrap-database [handler]

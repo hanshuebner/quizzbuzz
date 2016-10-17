@@ -29,7 +29,7 @@ class Display:
         self.width = self.info.current_w
         self.height = self.info.current_h
         self.fonts = {'normal': load_font(text_font, 48),
-                      'big': load_font(text_font, 96),
+                      'big': load_font(text_font, 70),
                       'huge': load_font(text_font, 192),
                       'icons': load_font(icon_font, 48)}
 

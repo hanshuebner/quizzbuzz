@@ -44,8 +44,8 @@ def render_textrect(string, font, rect, text_color, background_color, justificat
             # if any of our words are too long to fit, return.
             for word in words:
                 text_width = font.size(word)[0]
-                if text_width >= rect.width:
-                    raise TextRectException("The word " + word + " is too long to fit in the rect passed. " + str(text_width) + " pixels required, " + str(rect.width) + " pixels available.")
+                #if text_width >= rect.width:
+                #    raise TextRectException("The word " + word + " is too long to fit in the rect passed. " + str(text_width) + " pixels required, " + str(rect.width) + " pixels available.")
             # Start a new line
             accumulated_line = ""
             for word in words:
@@ -68,8 +68,8 @@ def render_textrect(string, font, rect, text_color, background_color, justificat
     accumulated_height = 0
     for line in final_lines:
         total_height = accumulated_height + font.size(line)[1]
-        if total_height >= rect.height:
-            raise TextRectException("Once word-wrapped, the text string was too tall to fit in the rect. " + str(total_height) + " pixels required, " + str(rect.height) + " pixels available.")
+        #if total_height >= rect.height:
+        #    raise TextRectException("Once word-wrapped, the text string was too tall to fit in the rect. " + str(total_height) + " pixels required, " + str(rect.height) + " pixels available.")
         if line != "":
             tempsurface = font.render(line, 1, text_color)
             if justification == 0:
