@@ -1,6 +1,9 @@
 (ns quizzbuzz.server
   (:gen-class)
   (:require [clojure.java.io :as io]
+            [clojure.string :as string]
+            [clojure.set :as set]
+            [slingshot.slingshot :refer [throw+]]
             [dk.ative.docjure.spreadsheet :as spreadsheet]
             [ring.middleware.json :refer [wrap-json-response]]
             [ring.middleware.keyword-params :refer [wrap-keyword-params]]
@@ -9,8 +12,7 @@
             [ring.adapter.jetty :refer [run-jetty]]
             [compojure.core :refer :all]
             [compojure.route :as route]
-            [me.raynes.fs :as fs]
-            [clojure.string :as string]))
+            [me.raynes.fs :as fs]))
 
 (defn ensure-string [thing]
   (if (float? thing)
@@ -26,18 +28,44 @@
          :answer-incorrect-3 (ensure-string answer-incorrect-3)
          :level (int level)}))
 
+(def headers-map {"Frage" :question
+                  "Richtige Antwort" :answer-correct
+                  "Falsche Antwort1" :answer-incorrect-1
+                  "Falsche Antwort2" :answer-incorrect-2
+                  "Falsche Antwort3" :answer-incorrect-3
+                  "Schwierigkeit" :level
+                  "Kategorie" :category})
+
+(defn check-header [header]
+  (let [missing-columns (set/difference (set (keys headers-map))
+                                        (set header))]
+    (when (seq missing-columns)
+      (throw+ {:type ::missing-columns
+               :columns missing-columns}))))
+
+(defn mapper [header row]
+  (reduce (fn [result [index header]]
+            (if-let [key (headers-map header)]
+              (assoc result key (nth row index))
+              result))
+          {}
+          (map-indexed list header)))
+
+(defn read-row [row]
+  (->> row
+       spreadsheet/cell-seq
+       (map spreadsheet/read-cell)))
+
+(defn read-sheet [sheet]
+  (let [[header & rows] (map read-row (spreadsheet/row-seq sheet))]
+    (check-header header)
+    (map (partial mapper header) rows)))
+
 (defn load-questions-from-excel [resource-name]
   (->> (spreadsheet/load-workbook-from-resource resource-name)
        spreadsheet/sheet-seq
        first
-       (spreadsheet/select-columns {:B :question
-                                    :C :answer-correct
-                                    :D :answer-incorrect-1
-                                    :E :answer-incorrect-2
-                                    :F :answer-incorrect-3
-                                    :G :level
-                                    :H :category})
-       rest
+       read-sheet
        (map normalize-question)))
 
 (defn catego-and-randomize [questions]
