@@ -31,6 +31,7 @@ class Display:
         self.fonts = {'normal': load_font(text_font, 48),
                       'big': load_font(text_font, 70),
                       'huge': load_font(text_font, 192),
+                      'small': load_font(text_font, 24),
                       'icons': load_font(icon_font, 48)}
 
     def clear(self):

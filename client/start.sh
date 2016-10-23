@@ -16,5 +16,8 @@ if (!defined($device)) {
     die "Cannot find Wireless Buzzer controller\n";
 }
 
-exec("sudo ./quizzbuzz.py /dev/$device") or die "$0: cannot start quizbuzz.py: $!\n";
+my $ipAddress = `hostname -I`;
+chomp $ipAddress;
+
+exec("sudo ./quizzbuzz.py /dev/$device $ipAddress") or die "$0: cannot start quizbuzz.py: $!\n";
 

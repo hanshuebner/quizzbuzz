@@ -29,10 +29,10 @@ def load_player_names():
     with open('../database/players.json', 'r') as file:
         return json.load(file)
 
-def choose_players(display, buzzers):
+def choose_players(display, buzzers, ip_address):
     clock = pygame.time.Clock()
     all_player_names = load_player_names()
-    view = views.ChoosePlayerView(display, load_player_names())
+    view = views.ChoosePlayerView(display, load_player_names(), ip_address)
     pygame.display.flip()
     unassigned_buzzers = set(buzzers.buzzers)
     claimed_buzzers = {}
@@ -154,7 +154,7 @@ def who_chooses(players):
     losers = list(filter(lambda player: player.score == low, ranked))
     return random.choice(losers)
 
-def main(buzzer_device):
+def main(buzzer_device, ip_address=''):
     pygame.mixer.init(44100, -16, 2, 512)
     pygame.init()
 
@@ -165,7 +165,7 @@ def main(buzzer_device):
     questions_per_round = 7
 
     while True:
-        players = choose_players(display, buzzers)
+        players = choose_players(display, buzzers, ip_address)
 
         for mode in [game_modes.Relaxed(), game_modes.Timed(), game_modes.OneOnly(), game_modes.Final()]:
             describe_game_mode(display, buzzers, mode)
@@ -179,7 +179,7 @@ def main(buzzer_device):
 
 if __name__ == '__main__':
     try:
-        main(sys.argv[1])
+        main(sys.argv[1], sys.argv[2])
     except KeyboardInterrupt:
         print('exiting')
         exit(0)
