@@ -45,5 +45,9 @@ class QuestionsServer:
             raise QuestionsException('Cannot retrieve categories, status %d: %s' % (response.status_code, response.text))
         return response.json()
 
+    def players(self):
+        response = requests.get(self.server_url + 'players',
+                                headers=self.headers())
+
     def __init__(self, server_url='http://localhost:3399/'):
         self.server_url = server_url

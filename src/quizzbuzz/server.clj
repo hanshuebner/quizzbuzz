@@ -3,6 +3,7 @@
   (:require [clojure.java.io :as io]
             [clojure.string :as string]
             [clojure.set :as set]
+            [clojure.edn :as edn]
             [slingshot.slingshot :refer [throw+]]
             [dk.ative.docjure.spreadsheet :as spreadsheet]
             [ring.middleware.json :refer [wrap-json-response]]
@@ -131,6 +132,16 @@
   (let [{:keys [max-level question-count]} (parse-params params)]
     (response/response (categories-with-questions database question-count max-level))))
 
+(defn add-player-defaults [player]
+  (merge {:level 10} player))
+
+(defn get-players-handler [request]
+  (response/response
+   (->> (io/resource "players.edn")
+        slurp
+        edn/read-string
+        (mapv add-player-defaults))))
+
 (defn load-database [database-file]
   (if (fs/exists? database-file)
     (read-string (slurp database-file))
@@ -152,6 +163,7 @@
 (defroutes app
   (POST "/questions" [] get-questions-handler)
   (GET "/categories" [] get-categories-handler)
+  (GET "/players" [] get-players-handler)
   (route/not-found "page not found"))
 
 (defonce server (atom nil))
