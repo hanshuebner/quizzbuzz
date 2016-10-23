@@ -9,10 +9,11 @@ class View:
         display.clear()
 
 class ChoosePlayerView(View):
-    def __init__(self, display, player_names):
+    def __init__(self, display, player_names, ip_address='127.0.0.1'):
         super().__init__(display)
         self.player_names = player_names
         self.display.draw_label('Wer spielt mit?', (0, 0, self.display.width, self.display.height), font='big')
+        self.display.draw_label(ip_address, (0, 0, 200, 100), font='small')
 
     def display_name_column(self, buzzer_index, chosen, unavailable=set()):
         cell_width = self.display.width / 4
@@ -60,10 +61,10 @@ class ChooseCategoryView(View):
     def display_categories(self, chosen=None):
         width = self.display.width
         height = self.display.height
-        self.draw_category(self.categories[0], chosen, (width * 0.18, height * 0.4 + 0, width * 0.64, 130), Color.blue)
-        self.draw_category(self.categories[1], chosen, (width * 0.18, height * 0.4 + 140, width * 0.64, 130), Color.orange)
-        self.draw_category(self.categories[2], chosen, (width * 0.18, height * 0.4 + 2*140, width * 0.64, 130), Color.green)
-        self.draw_category(self.categories[3], chosen, (width * 0.18, height * 0.4 + 3*140, width * 0.64, 130), Color.yellow)
+        self.draw_category(self.categories[0], chosen, (width * 0.18, height * 0.4 + 0, width * 0.64, 100), Color.blue)
+        self.draw_category(self.categories[1], chosen, (width * 0.18, height * 0.4 + 110, width * 0.64, 100), Color.orange)
+        self.draw_category(self.categories[2], chosen, (width * 0.18, height * 0.4 + 2*110, width * 0.64, 100), Color.green)
+        self.draw_category(self.categories[3], chosen, (width * 0.18, height * 0.4 + 3*110, width * 0.64, 100), Color.yellow)
         pygame.display.flip()
 
 class QuestionView(View):
@@ -99,21 +100,22 @@ class QuestionView(View):
     def display_choices(self, answers, correct=None):
         width = self.display.width
         height = self.display.height
-        self.draw_answer(answers[0], correct, (width * 0.18, height * 0.4 + 0, width * 0.64, 130), Color.blue)
-        self.draw_answer(answers[1], correct, (width * 0.18, height * 0.4 + 140, width * 0.64, 130), Color.orange)
-        self.draw_answer(answers[2], correct, (width * 0.18, height * 0.4 + 2*140, width * 0.64, 130), Color.green)
-        self.draw_answer(answers[3], correct, (width * 0.18, height * 0.4 + 3*140, width * 0.64, 130), Color.yellow)
+        self.draw_answer(answers[0], correct, (width * 0.18, height * 0.4 + 0, width * 0.64, 100), Color.blue)
+        self.draw_answer(answers[1], correct, (width * 0.18, height * 0.4 + 110, width * 0.64, 100), Color.orange)
+        self.draw_answer(answers[2], correct, (width * 0.18, height * 0.4 + 2*110, width * 0.64, 100), Color.green)
+        self.draw_answer(answers[3], correct, (width * 0.18, height * 0.4 + 3*110, width * 0.64, 100), Color.yellow)
         pygame.display.flip()
 
     def draw_player(self, player, answer_is_correct=None):
         (x, y, width, height) = self.player_rect(player.index)
+        print('width', width, 'height', height)
         foreground, background = Color.white, Color.black
         if answer_is_correct == True:
             foreground, background = Color.black, Color.green
         elif answer_is_correct == False:
             foreground, background = Color.black, Color.red
-        self.display.draw_label(player.name, (x, y + 120, width, 66), foreground=foreground, background=background)
-        self.display.draw_label(str(player.score), (x, y, width, height - 100), font='big')
+        self.display.draw_label(player.name, (x, y + 90, width, 66), foreground=foreground, background=background)
+        self.display.draw_label(str(player.score), (x, y, width, height - 66), font='big')
         pygame.display.flip()
 
 class VictoryCeremonyView(View):
@@ -122,16 +124,16 @@ class VictoryCeremonyView(View):
         width = self.display.width
         height = self.display.height
         self.display.draw_label('Siegerehrung',
-                                (0, 0, width, 300),
+                                (0, 0, width, 250),
                                 font='huge')
-        self.display.draw_label('Rang', (200, 330, 300, 200), font='big', foreground=Color.grey)
-        self.display.draw_label('Name', (500, 330, 800, 200), font='big', foreground=Color.grey)
-        self.display.draw_label('Punkte', (1300, 330, 300, 200), font='big', foreground=Color.grey)
+        self.display.draw_label('Rang', (0, 250, width * 0.2, 100), font='big', foreground=Color.grey)
+        self.display.draw_label('Name', (width * 0.2, 250, width * 0.6, 100), font='big', foreground=Color.grey)
+        self.display.draw_label('Punkte', (width * 0.8, 250, width * 0.2, 100), font='big', foreground=Color.grey)
         for rank, player in enumerate(scoreboard):
             name, score = player
-            self.display.draw_label(str(rank + 1), (200, 450 + rank*120, 300, 200), font='big')
-            self.display.draw_label(name, (500, 450 + rank*120, 800, 200), font='big')
-            self.display.draw_label(str(score), (1300, 450 + rank*120, 300, 200), font='big')
+            self.display.draw_label(str(rank + 1), (0, 350 + rank * 100, width * 0.2, 100), font='big')
+            self.display.draw_label(name, (width * 0.2, 350 + rank * 100, width * 0.6, 100), font='big')
+            self.display.draw_label(str(score), (width * 0.8, 350 + rank * 100, width * 0.2, 100), font='big')
         pygame.display.flip()
 
 def test_choose_player(display):
