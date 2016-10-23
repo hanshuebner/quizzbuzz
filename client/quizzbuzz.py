@@ -14,7 +14,7 @@ from display import Display
 import views
 import models
 from buzzers import BuzzerController, Red, Blue, Orange, Green, Yellow
-from questions import QuestionsServer
+from server import Server
 
 os.putenv('SDL_VIDEODRIVER', 'fbcon')
 
@@ -160,7 +160,7 @@ def main(buzzer_device, ip_address=''):
 
     buzzers = BuzzerController(buzzer_device)
     display = Display()
-    server = QuestionsServer()
+    server = Server()
 
     questions_per_round = 7
 
