@@ -108,7 +108,6 @@ class QuestionView(View):
 
     def draw_player(self, player, answer_is_correct=None):
         (x, y, width, height) = self.player_rect(player.index)
-        print('width', width, 'height', height)
         foreground, background = Color.white, Color.black
         if answer_is_correct == True:
             foreground, background = Color.black, Color.green

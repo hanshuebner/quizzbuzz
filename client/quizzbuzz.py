@@ -49,11 +49,13 @@ def choose_players(display, buzzers, all_players, ip_address):
                         unclaimed_players.add(buzzer.player)
                         buzzer.player = None
                         buzzer.set_led(False)
+                        selected_player.buzzer = None
                     else:
                         player_index = claimed_buzzers[buzzer]
                         selected_player = all_players[player_index]
                         if selected_player in unclaimed_players:
                             buzzer.player = selected_player
+                            selected_player.buzzer = buzzer
                             unclaimed_players.remove(selected_player)
                             ready_buzzers.add(buzzer)
                             buzzer.set_led(True)
