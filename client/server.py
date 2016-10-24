@@ -2,6 +2,7 @@ from random import shuffle
 import requests
 import json
 import raspi
+import models
 
 class ServerException(BaseException):
     def __init__(self, message = None):
@@ -48,6 +49,14 @@ class Server:
     def players(self):
         response = requests.get(self.server_url + 'players',
                                 headers=self.headers())
+        if response.status_code != 200:
+            raise ServerException('Cannot retrieve player list, status %d: %s' % (response.status_code, response.text))
+
+        def make_player(entry):
+            index, data = entry
+            return models.Player(data['name'], data['level'], index)
+
+        return list(map(make_player, enumerate(response.json())))
 
     def __init__(self, server_url='http://localhost:3399/'):
         self.server_url = server_url

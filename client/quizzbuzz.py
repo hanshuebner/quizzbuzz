@@ -12,7 +12,6 @@ import game_modes
 from enum import Enum
 from display import Display
 import views
-import models
 from buzzers import BuzzerController, Red, Blue, Orange, Green, Yellow
 from server import Server
 
@@ -25,44 +24,53 @@ def delay(buzzers, milliseconds):
     pygame.time.delay(3000)
     buzzers.flush()
 
-def load_player_names():
-    with open('../database/players.json', 'r') as file:
-        return json.load(file)
-
-def choose_players(display, buzzers, ip_address):
+def choose_players(display, buzzers, all_players, ip_address):
     clock = pygame.time.Clock()
-    all_player_names = load_player_names()
-    view = views.ChoosePlayerView(display, load_player_names(), ip_address)
-    pygame.display.flip()
-    unassigned_buzzers = set(buzzers.buzzers)
+    view = views.ChoosePlayerView(display, list(map(lambda player: player.name, all_players)), ip_address)
+    unclaimed_buzzers = set(buzzers.buzzers)
+    unclaimed_players = set(all_players)
     claimed_buzzers = {}
+    ready_buzzers = set()
     while True:
         message = buzzers.get_pressed()
         if message:
             buzzer = message.buzzer
-            if buzzer in unassigned_buzzers:
-                unassigned_buzzers.remove(buzzer)
+            if buzzer in unclaimed_buzzers:
+                unclaimed_buzzers.remove(buzzer)
                 claimed_buzzers[buzzer] = 0
-                buzzer.set_led(True)
-            elif buzzer in claimed_buzzers:
+            else:
                 if message.button == Blue and claimed_buzzers[buzzer] > 0:
                     claimed_buzzers[buzzer] -= 1
-                elif message.button == Orange and claimed_buzzers[buzzer] < len(all_player_names) - 1:
+                elif message.button == Orange and claimed_buzzers[buzzer] < len(all_players) - 1:
                     claimed_buzzers[buzzer] += 1
-                elif message.button == Red and len(set(claimed_buzzers.values())) == len(claimed_buzzers):
-                    break
+                elif message.button == Red:
+                    if buzzer in ready_buzzers:
+                        ready_buzzers.remove(buzzer)
+                        unclaimed_players.add(buzzer.player)
+                        buzzer.player = None
+                        buzzer.set_led(False)
+                    else:
+                        player_index = claimed_buzzers[buzzer]
+                        selected_player = all_players[player_index]
+                        if selected_player in unclaimed_players:
+                            buzzer.player = selected_player
+                            unclaimed_players.remove(selected_player)
+                            ready_buzzers.add(buzzer)
+                            buzzer.set_led(True)
+                            if len(ready_buzzers) == len(claimed_buzzers):
+                                break
         for buzzer in claimed_buzzers:
-            view.display_name_column(buzzer.index, all_player_names[claimed_buzzers[buzzer]])
+            player_index = claimed_buzzers[buzzer]
+            view.display_name_column(buzzer.index, all_players[player_index].name)
         clock.tick(10)
+        pygame.display.flip()
 
-    def make_player(entry):
+    def setup_player(entry):
         index, buzzer = entry
-        player = models.Player(all_player_names[claimed_buzzers[buzzer]], index)
-        buzzer.set_player(player)
         buzzer.set_led(False)
-        return player
+        return buzzer.player
 
-    return list(map(make_player, enumerate(claimed_buzzers)))
+    return list(map(setup_player, enumerate(claimed_buzzers)))
 
 def simple_view(view, buzzers):
     clock = pygame.time.Clock()
@@ -165,13 +173,19 @@ def main(buzzer_device, ip_address=''):
     questions_per_round = 7
 
     while True:
-        players = choose_players(display, buzzers, ip_address)
+        players = choose_players(display, buzzers, server.players(), ip_address)
+        level = min(player.level for player in players)
 
         for mode in [game_modes.Relaxed(), game_modes.Timed(), game_modes.OneOnly(), game_modes.Final()]:
             describe_game_mode(display, buzzers, mode)
 
-            category = choose_category(display, buzzers, random.sample(server.categories(), 4), who_chooses(players))
-            questions = server.questions(category=category, question_count=questions_per_round)
+            category = choose_category(display,
+                                       buzzers,
+                                       random.sample(server.categories(max_level=level), 4),
+                                       who_chooses(players))
+            questions = server.questions(category=category,
+                                         max_level=level,
+                                         question_count=questions_per_round)
 
             play_round(display, buzzers, players, questions, mode)
 

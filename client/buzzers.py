@@ -77,10 +77,6 @@ class Buzzer:
         self.led_state = False
         self.player = None
 
-    def set_player(self, player):
-        self.player = player
-        player.buzzer = self
-
     def set_led(self, led_state):
         self.led_state = led_state
         self.controller.set_leds()
