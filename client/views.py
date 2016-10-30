@@ -114,7 +114,7 @@ class QuestionView(View):
         elif answer_is_correct == False:
             foreground, background = Color.black, Color.red
         self.display.draw_label(player.name, (x, y + 90, width, 66), foreground=foreground, background=background)
-        self.display.draw_label(str(player.score), (x, y, width, height - 66), font='big')
+        self.display.draw_label(str(player.score), (x, y, width, 90), font='big')
         pygame.display.flip()
 
 class VictoryCeremonyView(View):
@@ -148,9 +148,9 @@ def test_choose_category(display):
                                   ['Filme', 'Wirtschaft', 'Musik', 'Religion & Gesellschaft'])
 
 def test_question(display):
-    players = [models.Player('Alva', 0),
-               models.Player('Marna', 1),
-               models.Player('Hans', 2)]
+    players = [models.Player('Alva', 0, 0),
+               models.Player('Marna', 1, 1),
+               models.Player('Hans', 2, 2)]
     for player in players:
         player.score = 9999
     view = QuestionView(display,
