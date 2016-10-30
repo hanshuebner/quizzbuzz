@@ -115,7 +115,6 @@ class QuestionView(View):
             foreground, background = Color.black, Color.red
         self.display.draw_label(player.name, (x, y + 90, width, 66), foreground=foreground, background=background)
         self.display.draw_label(str(player.score), (x, y, width, 90), font='big')
-        pygame.display.flip()
 
 class VictoryCeremonyView(View):
     def __init__(self, display, scoreboard):
@@ -156,6 +155,21 @@ def test_question(display):
     view = QuestionView(display,
                         players,
                         'Wie heisst der Bürgermeister von Wesel?')
+    clock = pygame.time.Clock()
+    count = 10
+    while True:
+        pygame.display.flip()
+        clock.tick(10)
+        count -= 1
+        if count == 0:
+            break
+        players[0].score += 10
+        players[1].score += 10
+        players[2].score -= 10
+        view.draw_player(players[0])
+        view.draw_player(players[1])
+        view.draw_player(players[2])
+
     input()
     view.display_choices(["Das Quiz mit Jörg Pilawa",
                           "Yellowstone-Nationalpark",
