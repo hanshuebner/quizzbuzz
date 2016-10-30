@@ -155,11 +155,16 @@ def test_question(display):
     view = QuestionView(display,
                         players,
                         'Wie heisst der Bürgermeister von Wesel?')
+    input()
+    view.display_choices(["Das Quiz mit Jörg Pilawa",
+                          "Yellowstone-Nationalpark",
+                          "Gustave Alexandre Eiffel",
+                          "1.000.000 Million Dollar"])
     clock = pygame.time.Clock()
-    count = 10
+    count = 100
     while True:
         pygame.display.flip()
-        clock.tick(10)
+        clock.tick()
         count -= 1
         if count == 0:
             break
@@ -170,11 +175,6 @@ def test_question(display):
         view.draw_player(players[1])
         view.draw_player(players[2])
 
-    input()
-    view.display_choices(["Das Quiz mit Jörg Pilawa",
-                          "Yellowstone-Nationalpark",
-                          "Gustave Alexandre Eiffel",
-                          "1.000.000 Million Dollar"])
     view.draw_player(players[0], True)
     view.draw_player(players[1], True)
     view.draw_player(players[2], False)

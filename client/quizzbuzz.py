@@ -64,8 +64,8 @@ def choose_players(display, buzzers, all_players, ip_address):
         for buzzer in claimed_buzzers:
             player_index = claimed_buzzers[buzzer]
             view.display_name_column(buzzer.index, all_players[player_index].name)
-        clock.tick(10)
         pygame.display.flip()
+        clock.tick()
 
     def setup_player(entry):
         index, buzzer = entry
@@ -81,7 +81,7 @@ def simple_view(view, buzzers):
         message = buzzers.get_pressed()
         if message and message.button == 0:
             break
-        clock.tick(10)
+        clock.tick()
         elapsed = now() - start
         if elapsed >= 600:
             buzzers.set_all_leds(False)
@@ -104,7 +104,7 @@ def choose_category(display, buzzers, categories, player):
         message = buzzers.get_pressed()
         if message and message.buzzer.player == player and message.button != 0:
             category = categories[4 - message.button]
-        clock.tick(10)
+        clock.tick()
     view.display_categories(category)
     delay(buzzers, 3000)
     player.buzzer.set_led(False)
@@ -144,7 +144,7 @@ def play_round(display, buzzers, players, questions, round_mode):
                             player.add_score(round_mode.score(answer_is_correct, remaining_time))
                             view.draw_player(player, answer_is_correct)
 
-            clock.tick(10)
+            clock.tick()
             remaining_time -= now() - base_time
 
         view.display_choices(question.answers, correct=question.correct_answer)
