@@ -82,7 +82,7 @@
             (>= (count (questions-upto-level (database category) max-level)) question-count))
           (keys database)))
 
-(defn get-questions [database category question-count max-level]
+(defn draw-questions [database category question-count max-level]
   (let [questions-chosen (take question-count (questions-upto-level (database category) max-level))]
     [questions-chosen
      (update database category (partial remove (set questions-chosen)))]))
@@ -106,7 +106,7 @@
                       (Integer/parseInt max-level)
                       10)))
 
-(defn get-questions-handler [{:keys [params config database]}]
+(defn draw-questions-handler [{:keys [params config ::database]}]
   (let [{:keys [questions-resource-name]} config
         {:keys [max-level category question-count]} (parse-params params)]
     (cond
@@ -119,13 +119,13 @@
           (response/status 400))
 
       :otherwise
-      (let [[questions database] (get-questions database
-                                                category
-                                                question-count
-                                                max-level)]
+      (let [[questions database] (draw-questions database
+                                                 category
+                                                 question-count
+                                                 max-level)]
         (if (seq questions)
           (assoc (response/response questions)
-                 :database database)
+                 ::database database)
           (response/not-found "no matching questions found"))))))
 
 (defn get-categories-handler [{:keys [database params]}]
@@ -142,6 +142,16 @@
         edn/read-string
         (mapv add-player-defaults))))
 
+(defn cleanup-string [client-id]
+  (string/replace client-id #"(?i)[^a-z0-9-]" ""))
+
+(defn wrap-client-id [handler]
+  (fn [{:keys [headers] :as request}]
+    (if-let [client-id (get headers "x-client-id")]
+      (handler (assoc request ::database-name (cleanup-string client-id)))
+      (-> (response/response "missing X-Client-ID header")
+          (response/status 400)))))
+
 (defn load-database [database-file]
   (if (fs/exists? database-file)
     (read-string (slurp database-file))
@@ -149,19 +159,16 @@
         catego-and-randomize)))
 
 (defn wrap-database [handler]
-  (fn [{:keys [headers] :as request}]
-    (if-let [client-id (get headers "x-client-id")]
-      (let [database-file (fs/file "database" (string/replace client-id #"(?i)[^a-z0-9-]" ""))
-            response (handler (assoc request
-                                     :database (load-database database-file)))]
-        (when-let [database (:database response)]
-          (spit database-file (pr-str database)))
-        (dissoc response :database))
-      (-> (response/response "missing X-Client-ID header")
-          (response/status 400)))))
+  (fn [{:keys [::database-name] :as request}]
+    (let [database-file (fs/file "database" database-name)
+          response (handler (assoc request
+                                   ::database (load-database database-file)))]
+      (when-let [database (::database response)]
+        (spit database-file (pr-str database)))
+      (dissoc response ::database))))
 
 (defroutes app
-  (POST "/questions" [] get-questions-handler)
+  (POST "/questions" [] draw-questions-handler)
   (GET "/categories" [] get-categories-handler)
   (GET "/players" [] get-players-handler)
   (route/not-found "page not found"))
@@ -179,7 +186,8 @@
                                  wrap-json-response
                                  wrap-keyword-params
                                  wrap-params
-                                 wrap-database)
+                                 wrap-database
+                                 wrap-client-id)
                              {:port port
                               :join? false}))))
 
