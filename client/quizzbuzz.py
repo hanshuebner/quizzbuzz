@@ -143,7 +143,7 @@ def play_round(display, buzzers, players, questions, round_mode):
                             player.sound.play()
                             player.add_score(round_mode.score(answer_is_correct, remaining_time))
                             view.draw_player(player, answer_is_correct)
-
+                            pygame.display.flip()
             clock.tick()
             remaining_time -= now() - base_time
 
